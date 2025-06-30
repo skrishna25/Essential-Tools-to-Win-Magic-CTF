@@ -20,9 +20,7 @@ The match was meant to be routine, until someone on the team leaked the game pla
 ## Commands & Mapping
 
 ### Step 1: Something was left unlocked
-The first clue lies in plain sight - configure, but don’t question.
-
-Use the credentials to authenticate via AWS CLI.
+**Hint:** Beneath the silence, the key murmurs where few dare to glance.
 
 **MITRE ATT&CK:**  
 T1528 – Steal Application Access Token  
@@ -36,9 +34,7 @@ aws sts get-caller-identity
 ---
 
 ### Step 2: They stored more than just objects
-What’s in the box may not be just files. Look deeper.
-
-List available buckets and explore their contents. Look for sensitive data like configuration files.
+**Hint:** The path begins with a name you can already see
 
 **MITRE ATT&CK:**  
 T1530 – Data from Cloud Storage Object  
@@ -53,7 +49,7 @@ aws s3 sync s3://<bucket-name> ./downloaded-data
 ---
 
 ### Step 3: You now speak its language
-You’ve found the map. It doesn’t shout - but it guides.
+**Hint:** You have found the map. It doesn’t shout - but it guides.
 
 **MITRE ATT&CK:**  
 T1592.002 – Gather Cloud Infra Config: Container Orchestration  
@@ -69,7 +65,7 @@ kubectl get pods -A
 
 ### Step 4: Walk among them
 
-Disguised as one of their own, you enter the field.
+**Hint:** Disguised as one of their own, you enter the field.
 
 **MITRE ATT&CK:**  
 T1610 – Deploy Container  
@@ -85,7 +81,7 @@ kubectl exec -it <name> -- /bin/bash
 
 ### Step 5: Beyond the container wall
 
-What lies beneath may not be hidden - only ignored.
+**Hint:** What lies beneath may not be hidden - only ignored.
 
 **MITRE ATT&CK:**  
 T1057 – Process Discovery  
@@ -100,7 +96,7 @@ hostname
 ---
 
 ### Step 6: Leave nothing... or leave everything
-If you must leave, take a souvenir. Just don’t leave a trace.
+**Hint:** If you must leave, take a souvenir. Just don’t leave a trace.
 
 **MITRE ATT&CK:**  
 T1537 – Transfer Data to Cloud Account  
